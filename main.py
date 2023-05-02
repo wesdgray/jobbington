@@ -1,5 +1,6 @@
 from argparse import argparse, Namespace
 import json
+import smtplib
 import requests
 from pprint import pprint
 from dataclasses import dataclass
@@ -19,6 +20,17 @@ def get_jobs(url: str, keywords: str) -> list:
                 continue
         return [job["title"] for job in jobs]
 
+@dataclass
+class Email:
+  user: str
+  password: str
+  to_addrs: str
+  from_addr: str
+
+def email_jobs(jobs: list, email: Email):
+  smtp_connection = smtplib.SMTP_SSL(host="smtp.gmail.com", port=smtplib.SMTP_SSL_PORT)
+  smtp_connection.login(user=email.user, password=email.password)
+  smtp_connection.send_message(to_addrs=email.to_addrs, from_addr=email.from_addr, msg=f"Found jobs:\n {jobs}")
 
 def main():
     # list jobs from company that match keywords
