@@ -1,5 +1,6 @@
 import json
 import smtplib
+from email.message import Message
 import requests
 from pprint import pprint
 from dataclasses import dataclass
@@ -29,13 +30,16 @@ class Email:
 
 
 def email_jobs(jobs: list, email: Email):
+    msg = Message()
+    msg["To"] = email.to_addrs
+    msg["From"] = email.from_addr
+    msg["Subject"] = "Jobbington found jobs"
+    msg.set_payload(f"Jobbington found these: {jobs}")
     smtp_connection = smtplib.SMTP_SSL(
         host="smtp.gmail.com", port=smtplib.SMTP_SSL_PORT
     )
     smtp_connection.login(user=email.user, password=email.password)
-    smtp_connection.send_message(
-        to_addrs=email.to_addrs, from_addr=email.from_addr, msg=f"Found jobs:\n {jobs}"
-    )
+    smtp_connection.send_message(msg)
 
 
 def main():
